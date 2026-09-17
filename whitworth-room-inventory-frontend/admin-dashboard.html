@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WhitHouse Admin Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+
+  <style>  /* style.css was messing stuff up, u can transfer this */
+      .admin-layout {
+      padding: 24px 32px;
+    }
+    .admin-top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 28px;
+    }
+    .admin-title {
+      font-size: 26px;
+      font-weight: 700;
+      color: #1A2B4A;
+    }
+    .admin-subtitle {
+      font-size: 13px;
+      color: #64748B;
+      margin-top: 2px;
+    }
+
+    .admin-sections {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+    }
+    @media (max-width: 900px) {
+      .admin-sections { grid-template-columns: 1fr; }
+    }
+
+    .admin-panel {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+      overflow: hidden;
+    }
+    .panel-header {
+      padding: 14px 20px;
+      font-size: 15px;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .panel-header.approval { background: #C04A00; }
+    .panel-header.completed { background: #1A5E2A; }
+    .panel-header.checkout { background: #1E3A8A; }
+
+    /* Check-out queue: students who have checked in and are waiting on an
+       RA/AC move-out inspection. */
+    .checkout-queue { margin-bottom: 22px; }
+    .checkout-queue .panel-body { min-height: 0; }
+
+    .queue-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 4px;
+      border-bottom: 1px solid #EEF2F7;
+    }
+    .queue-row:last-child { border-bottom: none; }
+
+    .queue-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: #1F2937;
+    }
+    .queue-meta {
+      font-size: 12px;
+      color: #64748B;
+      margin-top: 2px;
+    }
+
+    .queue-action {
+      margin-left: auto;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 16px;
+      border-radius: 6px;
+      background: #1E3A8A;
+      color: #fff;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .queue-action:hover { background: #17306e; }
+
+    .panel-header .badge {
+      background: rgba(255,255,255,0.25);
+      border-radius: 20px;
+      padding: 2px 10px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-left: auto;
+    }
+
+    .panel-body {
+      padding: 12px 16px;
+      min-height: 160px;
+    }
+
+    .pdf-card {
+      border: 1px solid #E2E8F0;
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-bottom: 10px;
+      background: #F8FAFC;
+      transition: box-shadow 0.15s;
+    }
+    .pdf-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.10); }
+
+    .pdf-card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .pdf-card-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: #1A2B4A;
+      word-break: break-all;
+    }
+    .pdf-card-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .btn-view-pdf {
+      font-size: 12px;
+      padding: 4px 12px;
+      border-radius: 6px;
+      background: #0D7C8F;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .btn-view-pdf:hover { background: #095e6e; }
+
+    
+    .approval-form {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid #E2E8F0;
+      display: none;          
+    }
+    .approval-form.visible { display: block; }
+
+    .approval-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+    }
+    .approval-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #334155;
+      min-width: 110px;
+    }
+    .approval-select, .approval-input {
+      font-size: 12px;
+      padding: 4px 8px;
+      border: 1px solid #CBD5E1;
+      border-radius: 5px;
+      background: #fff;
+    }
+    .approval-input { width: 200px; }
+
+    .btn-complete {
+      font-size: 12px;
+      padding: 5px 16px;
+      border-radius: 6px;
+      background: #1A5E2A;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      margin-top: 4px;
+    }
+    .btn-complete:hover { background: #144d21; }
+    .btn-complete:disabled { background: #94a3b8; cursor: default; }
+
+    .status-tag {
+      font-size: 11px;
+      padding: 2px 10px;
+      border-radius: 20px;
+      font-weight: 600;
+    }
+    .status-tag.checked-in  { background: #DBEAFE; color: #1E3A8A; }
+    .status-tag.checked-out { background: #FEF3C7; color: #92400E; }
+    .status-tag.done        { background: #D1FAE5; color: #065F46; }
+
+    .empty-msg {
+      font-size: 13px;
+      color: #94A3B8;
+      text-align: center;
+      padding: 32px 0;
+    }
+
+    /* ref: https://stackoverflow.com/questions/3096470/capture-signature-using-html5-and-ipad */
+    .sig-canvas-wrap {
+      margin-top: 6px;
+    }
+    .sig-canvas-wrap canvas {
+      border: 1px solid #CBD5E1;
+      border-radius: 6px;
+      cursor: crosshair;
+      background: #fff;
+      display: block;
+    }
+    .sig-canvas-wrap .sig-btns {
+      display: flex;
+      gap: 8px;
+      margin-top: 4px;
+    }
+    .sig-canvas-wrap .sig-btns button {
+      font-size: 11px;
+      padding: 3px 10px;
+      border-radius: 5px;
+      border: 1px solid #CBD5E1;
+      background: #f1f5f9;
+      cursor: pointer;
+    }
+    .save-msg {
+      font-size: 12px;
+      color: #065F46;
+      margin-top: 4px;
+      display: none;
+    }
+
+    /* ---- Residence-hall folder grid ---- */
+    .folder-intro {
+      font-size: 14px;
+      color: #475569;
+      margin: 4px 0 14px;
+    }
+    .folder-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 14px;
+    }
+    .folder-card {
+      background: #fff;
+      border: 1px solid #E2E8F0;
+      border-radius: 12px;
+      padding: 16px;
+      cursor: pointer;
+      transition: box-shadow .15s, transform .15s, border-color .15s;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .folder-card:hover {
+      box-shadow: 0 4px 14px rgba(0,0,0,0.10);
+      transform: translateY(-2px);
+      border-color: #9f1f25;
+    }
+    .folder-card-name {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1A2B4A;
+    }
+    .folder-card-name .folder-icon { margin-right: 6px; }
+    .folder-card-counts {
+      font-size: 12px;
+      color: #475569;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .folder-pill {
+      background: #F1F5F9;
+      border-radius: 999px;
+      padding: 2px 9px;
+    }
+    .folder-pill.attention { background: #FEF3C7; color: #92400E; }
+    .folder-detail-bar {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+    .back-link {
+      background: #fff;
+      border: 1px solid #E2E8F0;
+      border-radius: 8px;
+      padding: 7px 12px;
+      font-size: 13px;
+      cursor: pointer;
+      color: #1A2B4A;
+    }
+    .back-link:hover { border-color: #9f1f25; color: #9f1f25; }
+    .folder-detail-title { font-size: 18px; font-weight: 600; color: #1A2B4A; }
+  </style>
+  
+
+</head>
+<body class="dashboard-body">
+  <main class="main-content admin-layout">
+  
+    <div class="admin-top-bar">
+      <div>
+        <div class="admin-title">Admin Dashboard</div>
+        <div class="admin-subtitle">Room Inventory Review</div>
+      </div>
+      <div class="profile-menu">
+        <div class="account-wrapper" onclick="toggleDropdown(event)">
+          <span class="profile-name">Admin</span>
+          <span class="account-icon">👤</span>
+        </div>
+        <div id="dropdown-menu" class="dropdown-menu">
+          <a href="index.html">Log Out</a>
+        </div>
+      </div>
+    </div>
+  
+
+    <!-- FOLDER GRID: one folder per residence hall (default view) -->
+    <div id="folderView">
+
+      <!-- Students who have checked in and are waiting on an RA/AC move-out
+           inspection. Opening one loads their form in check-out mode. -->
+      <div class="admin-panel checkout-queue">
+        <div class="panel-header checkout">
+          Awaiting Check-Out Inspection
+          <span class="badge" id="checkoutCount">0</span>
+        </div>
+        <div class="panel-body" id="checkoutPanel">
+          <div class="empty-msg">Loading…</div>
+        </div>
+      </div>
+
+      <div class="folder-intro">Select a residence hall to review its submitted forms.</div>
+      <div class="folder-grid" id="folderGrid">
+        <div class="empty-msg">Loading…</div>
+      </div>
+    </div>
+
+    <!-- FOLDER DETAIL: forms for one selected residence hall -->
+    <div id="folderDetail" style="display:none;">
+      <div class="folder-detail-bar">
+        <button class="back-link" onclick="backToFolders()">← All residence halls</button>
+        <span class="folder-detail-title">📁 <span id="folderTitle"></span></span>
+      </div>
+
+      <div class="admin-sections">
+
+        <div class="admin-panel">
+          <div class="panel-header approval">
+             Approval Required
+            <span class="badge" id="approvalCount">0</span>
+          </div>
+          <div class="panel-body" id="approvalPanel">
+            <div class="empty-msg">Loading…</div>
+          </div>
+        </div>
+
+
+        <div class="admin-panel">
+          <div class="panel-header completed">
+             Completed Forms
+            <span class="badge" id="completedCount">0</span>
+          </div>
+          <div class="panel-body" id="completedPanel">
+            <div class="empty-msg">Loading…</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+  
+  <script src="script.js"></script>
+  <script>
+
+  // Dashboard state kept in memory so opening a folder doesn't need a refetch,
+  // and so we can return to the same residence hall after an approval.
+  const _state = {
+    needsApproval: [],
+    completed: [],
+    statusMap: {},
+    dormMap: {},
+    currentDorm: null
+  };
+
+  const UNASSIGNED = "Unassigned";
+
+  function fileToStudent(filename) {
+    return filename.replace("_inventory.pdf", "");
+  }
+
+  async function loadDashboard() {
+    const [pdfsRes, formsRes] = await Promise.all([
+      fetch("http://localhost:5001/get_all_pdfs"),
+      fetch("http://localhost:5001/admin/forms")
+    ]);
+
+    const pdfsData  = await pdfsRes.json();
+    const formsData = await formsRes.json();
+
+    const files = pdfsData.files  || [];
+    const forms = formsData.forms || [];
+
+    // Maps of student id -> form status and student id -> residence hall (dorm)
+    const statusMap = {};
+    const dormMap = {};
+    forms.forEach(f => {
+      statusMap[f.student_id] = f.form_status;
+      dormMap[f.student_id] = (f.dorm && f.dorm.trim()) ? f.dorm.trim() : UNASSIGNED;
+    });
+
+    const approvalMap = {};
+    await Promise.all(files.map(async filename => {
+      try {
+        const r = await fetch(`http://localhost:5001/get_pdf_approval/${encodeURIComponent(filename)}`);
+        const d = await r.json();
+        if (d.status === "success") approvalMap[filename] = d.approval;
+      } catch {}
+    }));
+
+    const needsApproval = [];
+    const completed     = [];
+
+    files.forEach(filename => {
+      const approval = approvalMap[filename];
+      if (approval && approval.completed) {
+        completed.push({ filename, approval });
+      } else {
+        needsApproval.push({ filename, approval: approval || null });
+      }
+    });
+
+    _state.needsApproval = needsApproval;
+    _state.completed     = completed;
+    _state.statusMap     = statusMap;
+    _state.dormMap       = dormMap;
+
+    // Checked-in forms are waiting on the RA/AC move-out inspection.
+    _state.checkoutQueue = forms.filter(f => f.form_status === "checked-in");
+
+    renderCheckoutQueue();
+    renderFolders();
+
+    // If we were viewing a hall (e.g. just after an approval), reopen it.
+    if (_state.currentDorm) openFolder(_state.currentDorm);
+  }
+
+  // List the students waiting on a check-out inspection. "Start Check-Out"
+  // opens their inventory form in admin check-out mode.
+  function renderCheckoutQueue() {
+    const panel = document.getElementById("checkoutPanel");
+    const items = _state.checkoutQueue || [];
+
+    document.getElementById("checkoutCount").textContent = items.length;
+
+    if (items.length === 0) {
+      panel.innerHTML =
+        '<div class="empty-msg">No students are waiting for a check-out inspection.</div>';
+      return;
+    }
+
+    panel.innerHTML = "";
+
+    items.forEach(f => {
+      const student = f.sign_in_id;
+      const dorm = (f.dorm && f.dorm.trim()) ? f.dorm.trim() : UNASSIGNED;
+      const room = f.room_number || "—";
+
+      const row = document.createElement("div");
+      row.className = "queue-row";
+      row.innerHTML = `
+        <div>
+          <div class="queue-name">${f.student_name || student}</div>
+          <div class="queue-meta">${student} &middot; ${dorm} &middot; Room ${room}</div>
+        </div>
+        <a class="queue-action"
+           href="room-inventory.html?student=${encodeURIComponent(student)}">Start Check-Out</a>`;
+      panel.appendChild(row);
+    });
+  }
+
+  // Group every form by residence hall and render one folder per hall.
+  function renderFolders() {
+    const grid = document.getElementById("folderGrid");
+    const dormOf = f => _state.dormMap[fileToStudent(f.filename)] || UNASSIGNED;
+
+    const counts = {};   // dorm -> { needs, done }
+    _state.needsApproval.forEach(it => {
+      const d = dormOf(it); (counts[d] = counts[d] || { needs: 0, done: 0 }).needs++;
+    });
+    _state.completed.forEach(it => {
+      const d = dormOf(it); (counts[d] = counts[d] || { needs: 0, done: 0 }).done++;
+    });
+
+    const dorms = Object.keys(counts).sort((a, b) => a.localeCompare(b));
+
+    if (dorms.length === 0) {
+      grid.innerHTML = '<div class="empty-msg">No submitted forms yet.</div>';
+      return;
+    }
+
+    grid.innerHTML = "";
+    dorms.forEach(dorm => {
+      const c = counts[dorm];
+      const total = c.needs + c.done;
+      const card = document.createElement("div");
+      card.className = "folder-card";
+      card.onclick = () => openFolder(dorm);
+      card.innerHTML = `
+        <div class="folder-card-name"><span class="folder-icon">📁</span>${dorm}</div>
+        <div class="folder-card-counts">
+          <span class="folder-pill">${total} total</span>
+          ${c.needs > 0 ? `<span class="folder-pill attention">${c.needs} to review</span>` : ``}
+          <span class="folder-pill">${c.done} done</span>
+        </div>`;
+      grid.appendChild(card);
+    });
+  }
+
+  // Open one residence hall: show only its forms in the two panels.
+  function openFolder(dorm) {
+    _state.currentDorm = dorm;
+    const dormOf = f => _state.dormMap[fileToStudent(f.filename)] || UNASSIGNED;
+
+    const na = _state.needsApproval.filter(it => dormOf(it) === dorm);
+    const co = _state.completed.filter(it => dormOf(it) === dorm);
+
+    document.getElementById("folderTitle").textContent = dorm;
+    renderPanel("approvalPanel",  na, _state.statusMap, true);
+    renderPanel("completedPanel", co, _state.statusMap, false);
+    document.getElementById("approvalCount").textContent  = na.length;
+    document.getElementById("completedCount").textContent = co.length;
+
+    document.getElementById("folderView").style.display = "none";
+    document.getElementById("folderDetail").style.display = "";
+  }
+
+  function backToFolders() {
+    _state.currentDorm = null;
+    document.getElementById("folderDetail").style.display = "none";
+    document.getElementById("folderView").style.display = "";
+  }
+  
+  
+  function renderPanel(panelId, items, statusMap, showApprovalForm) {
+    const panel = document.getElementById(panelId);
+    if (items.length === 0) {
+      panel.innerHTML = '<div class="empty-msg">Nothing here yet.</div>';
+      return;
+    }
+  
+    panel.innerHTML = "";
+  
+    items.forEach(({ filename, approval }) => {
+
+      const studentId  = filename.replace("_inventory.pdf", "");
+      const formStatus = statusMap[studentId] || "unknown";
+      const isCheckout = formStatus === "checked-out";
+  
+      const card = document.createElement("div");
+      card.className = "pdf-card";
+  
+     
+      let tagClass = "checked-in";
+      if (formStatus === "checked-out") tagClass = "checked-out";
+      if (approval && approval.completed) tagClass = "done";
+  
+      card.innerHTML = `
+        <div class="pdf-card-top">
+          <div class="pdf-card-name">📄 ${filename}</div>
+          <div class="pdf-card-actions">
+            <span class="status-tag ${tagClass}">${formStatus}</span>
+            <a class="btn-view-pdf"
+               href="http://localhost:5001/pdfs/${encodeURIComponent(filename)}"
+               target="_blank">View PDF</a>
+          </div>
+        </div>
+  
+        ${showApprovalForm && isCheckout ? `
+
+        <div class="approval-form visible" id="form_${filename}">
+  
+          <div class="approval-row">
+            <span class="approval-label">Key Received?</span>
+            <select class="approval-select" id="key_${filename}">
+              <option value="">-- Select --</option>
+              <option value="yes" ${approval?.keys_turned_in ? "selected" : ""}>Yes</option>
+              <option value="no"  ${approval && !approval.keys_turned_in ? "selected" : ""}>No</option>
+            </select>
+          </div>
+  
+          <div class="approval-row" style="align-items:flex-start;">
+            <span class="approval-label" style="padding-top:6px;">Admin Signature:</span>
+            <div class="sig-canvas-wrap">
+              <canvas id="canvas_${filename}" width="280" height="70"></canvas>
+              <div class="sig-btns">
+                <button onclick="clearCanvas('${filename}')">Clear</button>
+              </div>
+            </div>
+          </div>
+  
+          <button class="btn-complete" onclick="submitApproval('${filename}')">
+            ✔ Mark as Completed
+          </button>
+          <div class="save-msg" id="msg_${filename}">Saved!</div>
+        </div>` : ""}
+  
+        ${!showApprovalForm && approval ? `
+        
+        <div style="margin-top:8px; font-size:12px; color:#334155;">
+          <b>Key Received:</b> ${approval.keys_turned_in ? "Yes" : "No"} &nbsp;|&nbsp;
+          <b>Admin Signed:</b> ${approval.admin_signature ? "Yes" : "No"} &nbsp;|&nbsp;
+          <b>Approved:</b> ${approval.approved_at || ""}
+        </div>` : ""}
+      `;
+  
+      panel.appendChild(card);
+  
+     
+      if (showApprovalForm && isCheckout) {
+        setupCanvas(filename);
+      }
+    });
+  }
+  
+  
+  const canvasState = {};
+  
+  function setupCanvas(filename) {
+    const canvas = document.getElementById(`canvas_${filename}`);
+    if (!canvas) return;
+    const ctx    = canvas.getContext("2d");
+    ctx.strokeStyle = "#1A2B4A";
+    ctx.lineWidth   = 2;
+    ctx.lineCap     = "round";
+  
+    let drawing = false;
+  
+    canvas.addEventListener("mousedown",  e => { drawing=true; ctx.beginPath(); ctx.moveTo(...pos(canvas,e)); });
+    canvas.addEventListener("mousemove",  e => { if (!drawing) return; ctx.lineTo(...pos(canvas,e)); ctx.stroke(); });
+    canvas.addEventListener("mouseup",    () => drawing = false);
+    canvas.addEventListener("mouseleave", () => drawing = false);
+  
+    // Touch support
+    canvas.addEventListener("touchstart",  e => { e.preventDefault(); drawing=true; ctx.beginPath(); ctx.moveTo(...pos(canvas,e.touches[0])); }, {passive:false});
+    canvas.addEventListener("touchmove",   e => { e.preventDefault(); if(!drawing) return; ctx.lineTo(...pos(canvas,e.touches[0])); ctx.stroke(); }, {passive:false});
+    canvas.addEventListener("touchend",    () => drawing = false);
+  
+    canvasState[filename] = canvas;
+  }
+  
+  function pos(canvas, e) {
+    const r = canvas.getBoundingClientRect();
+    return [e.clientX - r.left, e.clientY - r.top];
+  }
+  
+  function clearCanvas(filename) {
+    const canvas = canvasState[filename];
+    if (!canvas) return;
+    canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
+  }
+  
+  
+
+  async function submitApproval(filename) {
+    const keyEl  = document.getElementById(`key_${filename}`);
+    const canvas = canvasState[filename];
+    const msgEl  = document.getElementById(`msg_${filename}`);
+  
+    if (!keyEl || keyEl.value === "") {
+      alert("Please select whether the key was received.");
+      return;
+    }
+  
+    // Check canvas has any drawing
+    const ctx  = canvas.getContext("2d");
+    const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+    const hasDrawing = data.some(v => v !== 0);
+    if (!hasDrawing) {
+      alert("Please provide a signature.");
+      return;
+    }
+  
+    const signatureDataUrl = canvas.toDataURL("image/png");
+  
+    try {
+      const res = await fetch("http://localhost:5001/save_pdf_approval", {
+        method:  "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          filename:        filename,
+          keys_turned_in:  keyEl.value === "yes",
+          admin_signature: signatureDataUrl,
+          completed:       true
+        })
+      });
+
+      const result = await res.json();
+
+      if (result.status === "success") {
+        const signInId = filename.replace("_inventory.pdf", "");
+
+        await fetch(`http://localhost:5001/generate_pdf/${encodeURIComponent(signInId)}`);
+
+        if (msgEl) {
+          msgEl.style.display = "block";
+        }
+
+        alert("Success!");
+
+        // Reload after 1 second so card moves
+        setTimeout(() => loadDashboard(), 1000);
+      } else {
+        alert("Error: " + result.message);
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Network error.");
+    }
+  }
+  
+  loadDashboard();
+  </script>
+  </body>
+  </html>
+  

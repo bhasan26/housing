@@ -1,0 +1,1199 @@
+<!--Room inventory form -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WhitHouse Room Inventory</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* WO Yes/No dropdown  */
+    .wo-select {
+      width: 68px;
+      padding: 3px 4px;
+      font-size: 12px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      background: #fff;
+    }
+    /* Repair-policy note under the Work Order column headings. The max-width
+       keeps the sentence wrapping instead of stretching the column. */
+    .wo-note {
+      display: block;
+      max-width: 170px;
+      margin: 5px auto 0;
+      font-size: 10px;
+      font-weight: 400;
+      font-style: italic;
+      line-height: 1.35;
+      color: #555;
+      text-align: center;
+    }
+    /* Shown only in RA/AC check-out mode, linking back to the queue */
+    .admin-back-link {
+      align-self: center;
+      margin-right: 16px;
+      font-size: 14px;
+      font-weight: 700;
+      color: #601318;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .admin-back-link:hover { color: #9f1f25; }
+    /* How-to instructions panel above the checklist */
+    .inventory-instructions {
+      border: 1px solid #e2d8d4;
+      border-left: 4px solid #9f1f25;
+      background: #fbf7f6;
+      border-radius: 8px;
+      padding: 14px 18px;
+      margin-bottom: 18px;
+    }
+    .instructions-title {
+      margin: 0 0 10px;
+      font-size: 15px;
+      font-weight: 800;
+      color: #601318;
+    }
+    .instructions-list {
+      margin: 0;
+      padding-left: 20px;
+      font-size: 13px;
+      line-height: 1.6;
+      color: #333;
+    }
+    .instructions-list li {
+      margin-bottom: 9px;
+    }
+    .instructions-list li:last-child {
+      margin-bottom: 0;
+    }
+    /* imageupload row shws when WO = Yes */
+    .wo-image-row td {
+      background: #fffbea;
+      padding: 6px 12px;
+      border-top: none;
+    }
+    .wo-image-label {
+      font-size: 12px;
+      color: #7a5800;
+      margin-bottom: 4px;
+      display: block;
+    }
+    .wo-image-preview {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+    }
+    .wo-image-preview img {
+      width: 72px;
+      height: 72px;
+      object-fit: cover;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+  </style>
+</head>
+
+
+
+<!-- RULER BUTTON -->
+<button id="rulerBtn" class="ruler-toggle">Ruler</button>
+
+<!-- FULL SCREEN SIDE RULER -->
+<div id="sideRuler" class="side-ruler">
+  <span class="ruler-number" style="top: 0in;">0</span>
+  <span class="ruler-number" style="top: 1in;">1</span>
+  <span class="ruler-number" style="top: 2in;">2</span>
+  <span class="ruler-number" style="top: 3in;">3</span>
+  <span class="ruler-number" style="top: 4in;">4</span>
+  <span class="ruler-number" style="top: 5in;">5</span>
+  <span class="ruler-number" style="top: 6in;">6</span>
+  <span class="ruler-number" style="top: 7in;">7</span>
+  <span class="ruler-number" style="top: 8in;">8</span>
+  <span class="ruler-number" style="top: 9in;">9</span>
+  <span class="ruler-number" style="top: 10in;">10</span>
+  <span class="ruler-number" style="top: 11in;">11</span>
+  <span class="ruler-number" style="top: 12in;">12</span>
+  <span class="ruler-number" style="top: 13in;">13</span>
+  <span class="ruler-number" style="top: 14in;">14</span>
+  <span class="ruler-number" style="top: 15in;">15</span>
+</div>
+
+<body class="dashboard-body">
+
+  <main class="main-content">
+    <div class="top-bar new-topbar">
+      <div>
+        <h1 class="page-title">Room Inventory</h1>
+        <p class="page-subtitle">Complete your dorm room inventory verification form.</p>
+      </div>
+
+      <div class="profile-menu">
+        <div class="account-wrapper" onclick="toggleDropdown()">
+          <span class="profile-name">Account</span>
+          <span class="account-icon">👤</span>
+        </div>
+
+        <div id="dropdown-menu" class="dropdown-menu">
+          <a href="index.html">Log Out</a>
+        </div>
+      </div>
+    </div>
+
+    <section class="content-grid">
+
+      <!-- FORM CARD -->
+      <div class="card form-card">
+        <h2 class="section-title">Student Information</h2>
+
+        <form class="work-order-form">
+
+          <label class="form-label" for="studentID">Student ID</label>
+          <input type="text" id="studentID" class="form-input" placeholder="Enter your student ID" />
+
+          <label class="form-label" for="studentName">Student Name <span class="req-star">*</span></label>
+          <input type="text" id="studentName" class="form-input" placeholder="Enter your name" />
+
+          <label class="form-label">Are you in your assigned room to complete this form? <span class="req-star">*</span></label>
+          <select id="present" class="form-input">
+            <option value="">Select an option</option>
+            <option>Yes</option>
+            <option>No</option>
+          </select>
+
+          <label class="form-label" for="dorm">Which residence hall are you in? <span class="req-star">*</span></label>
+          <select id="dorm" class="form-input">
+            <option value="">Select your residence hall</option>
+            <option>Neighborhood House</option>
+            <option>Warren</option>
+            <option>Village</option>
+            <option>Baldwin-Jenkins</option>
+            <option>Oliver</option>
+            <option>Boppell</option>
+            <option>Ballard</option>
+            <option>Duvall</option>
+            <option>McMillan</option>
+            <option>Stewart</option>
+            <option>Arend</option>
+          </select>
+
+          <!--Subform for housing-->
+            <!-- Input for Neighborhood House -->
+          <label class="form-label" for="houseName" id="houseLabel" style="display:none;">Enter your house name: <span class="req-star">*</span></label>
+          <input type="text" id="houseName" class="form-input" style="display:none;" placeholder="Type your house name">
+
+          <!-- Second dropdown for other dorms -->
+          <label class="form-label" for="subDorm" id="subDormLabel" style="display:none;">Select your sub-dorm <span class="req-star">*</span></label>
+          <select id="subDorm" class="form-input" style="display:none;">
+            <option value="">Select your sub-dorm</option>
+          </select>
+
+          <!--Room number-->
+          <label class="form-label" for="roomNumber">Room Number <span class="req-star">*</span></label>
+          <input type="text" id="roomNumber" class="form-input" placeholder="Enter your room number" />
+
+          <label class="form-label" for="formCompletionDate">Check-In Date <span class="req-star">*</span></label>
+          <input type="date" id="formCompletionDate" class="form-input" />
+
+          <label class="form-label" for="checkoutDate">Check-Out Date <span class="req-star">*</span></label>
+          <input type="date" id="checkoutDate" class="form-input" />
+          
+
+          <!-- MODE BANNER -->
+          <div id="formModeLabel" class="mode-banner"></div>
+
+          <!-- INSTRUCTIONS -->
+          <p id="formInstructions" style="margin-bottom:10px; font-size:14px;"></p>
+
+          <!-- How-to instructions, from the printed housing handout. Shown for
+               both form types, before the student starts the checklist. -->
+          <div class="inventory-instructions">
+            <h4 class="instructions-title">You must complete a room inventory. Here&rsquo;s how!</h4>
+
+            <ol class="instructions-list">
+              <li>
+                <strong>Note any damaged, missing, or broken furniture in the
+                <u>Check-In Notes/Damage</u> column.</strong>
+                Not all furniture or items are found in every room, e.g. not
+                every room has a hutch.
+              </li>
+
+              <li>
+                <strong>Use only exact measurements/descriptions.</strong>
+                E.g. &ldquo;2-inch scratch,&rdquo; &ldquo;4 marks,&rdquo; or
+                &ldquo;loose desk leg.&rdquo;
+                <strong>DO NOT USE <em>inexact</em> measurements/descriptions.</strong>
+                E.g. &ldquo;Huge scratch,&rdquo; &ldquo;Several marks,&rdquo; or
+                &ldquo;broken desk leg.&rdquo;
+              </li>
+
+              <li>
+                <strong>Properly determine front, back, left, and right walls.</strong>
+                To do so, put the entrance of the room at your back. That wall is
+                now considered the <strong>BACK</strong> wall. The wall in front
+                of you is the <strong>FRONT</strong> wall, to your left is the
+                <strong>LEFT</strong> wall, and to your right is the
+                <strong>RIGHT</strong> wall.
+              </li>
+
+              <li>
+                <strong>Questions?</strong> Talk to your RA or your AC.
+              </li>
+            </ol>
+          </div>
+
+          <!-- Room inventory checklist -->
+          <h3 class="section-title"><br>Room Inventory Checklist</h3>
+
+          <!-- Apartment-style form (Neighborhood House, Oliver, Boppell, Duvall, Stewart) -->
+          <div class="inventory-table-wrapper" id="apartmentInventory">
+            <table class="inventory-table">
+              <thead>
+                <tr>
+                  <th>Item</th>
+                  <th>Qty <span class="req-star">*</span></th>
+                  <th>Check-In (Move-In) <span class="req-star">*</span></th>
+                  <th>Work Order<span class="wo-note">Items that are unusable or unsafe will be repaired/replaced. However, items with minor damage will be addressed as time permits.</span></th>
+                  <th>Check-Out (Move-Out) <span class="req-star">*</span></th>
+                  <th>Work Order<span class="wo-note">Items that are unusable or unsafe will be repaired/replaced. However, items with minor damage will be addressed as time permits.</span></th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <tr class="section-row"><td colspan="6">BEDROOM</td></tr>
+
+                <tr>
+                  <td>Bed Frame <span class="req-star">*</span></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="bed_frame_checkin" /></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="bed_frame_checkout" /></td>
+                  <td>
+                    <select class="wo-select" id="bed_frame_wo_checkout" data-item="bed_frame">
+                      <option value="No" selected>No</option>
+                      <option value="Yes">Yes</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr class="wo-image-row" id="bed_frame_image_row" style="display:none;">
+                  <td colspan="6">
+                    <span class="wo-image-label">Attach photo(s):</span>
+                    <input type="file" accept="image/*" multiple id="bed_frame_wo_images" />
+                    <div class="wo-image-preview" id="bed_frame_wo_preview"></div>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>Mattress <span class="req-star">*</span></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="mattress_checkin" /></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="mattress_checkout" /></td>
+                  <td>
+                    <select class="wo-select" id="mattress_wo_checkout" data-item="mattress">
+                      <option value="No" selected>No</option>
+                      <option value="Yes">Yes</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr class="wo-image-row" id="mattress_image_row" style="display:none;">
+                  <td colspan="6">
+                    <span class="wo-image-label">Attach photo(s):</span>
+                    <input type="file" accept="image/*" multiple id="mattress_wo_images" />
+                    <div class="wo-image-preview" id="mattress_wo_preview"></div>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>Wardrobe/Closet <span class="req-star">*</span></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="wardrobe_closet_checkin" /></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="wardrobe_closet_checkout" /></td>
+                  <td>
+                    <select class="wo-select" id="wardrobe_closet_wo_checkout" data-item="wardrobe_closet">
+                      <option value="No" selected>No</option>
+                      <option value="Yes">Yes</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr class="wo-image-row" id="wardrobe_closet_image_row" style="display:none;">
+                  <td colspan="6">
+                    <span class="wo-image-label">Attach photo(s):</span>
+                    <input type="file" accept="image/*" multiple id="wardrobe_closet_wo_images" />
+                    <div class="wo-image-preview" id="wardrobe_closet_wo_preview"></div>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>Dresser <span class="req-star">*</span></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="dresser_checkin" /></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="dresser_checkout" /></td>
+                  <td>
+                    <select class="wo-select" id="dresser_wo_checkout" data-item="dresser">
+                      <option value="No" selected>No</option>
+                      <option value="Yes">Yes</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr class="wo-image-row" id="dresser_image_row" style="display:none;">
+                  <td colspan="6">
+                    <span class="wo-image-label">Attach photo(s):</span>
+                    <input type="file" accept="image/*" multiple id="dresser_wo_images" />
+                    <div class="wo-image-preview" id="dresser_wo_preview"></div>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>Desk <span class="req-star">*</span></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="desk_checkin" /></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="desk_checkout" /></td>
+                  <td>
+                    <select class="wo-select" id="desk_wo_checkout" data-item="desk">
+                      <option value="No" selected>No</option>
+                      <option value="Yes">Yes</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr class="wo-image-row" id="desk_image_row" style="display:none;">
+                  <td colspan="6">
+                    <span class="wo-image-label">Attach photo(s):</span>
+                    <input type="file" accept="image/*" multiple id="desk_wo_images" />
+                    <div class="wo-image-preview" id="desk_wo_preview"></div>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>Chair <span class="req-star">*</span></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="chair_checkin" /></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="chair_checkout" /></td>
+                  <td>
+                    <select class="wo-select" id="chair_wo_checkout" data-item="chair">
+                      <option value="No" selected>No</option>
+                      <option value="Yes">Yes</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr class="wo-image-row" id="chair_image_row" style="display:none;">
+                  <td colspan="6">
+                    <span class="wo-image-label">Attach photo(s):</span>
+                    <input type="file" accept="image/*" multiple id="chair_wo_images" />
+                    <div class="wo-image-preview" id="chair_wo_preview"></div>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>Hutch (with Light) <span class="req-star">*</span></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="hutch_light_checkin" /></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="hutch_light_checkout" /></td>
+                  <td>
+                    <select class="wo-select" id="hutch_light_wo_checkout" data-item="hutch_light">
+                      <option value="No" selected>No</option>
+                      <option value="Yes">Yes</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr class="wo-image-row" id="hutch_light_image_row" style="display:none;">
+                  <td colspan="6">
+                    <span class="wo-image-label">Attach photo(s):</span>
+                    <input type="file" accept="image/*" multiple id="hutch_light_wo_images" />
+                    <div class="wo-image-preview" id="hutch_light_wo_preview"></div>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>Bookshelf <span class="req-star">*</span></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="bookshelf_checkin" /></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="bookshelf_checkout" /></td>
+                  <td>
+                    <select class="wo-select" id="bookshelf_wo_checkout" data-item="bookshelf">
+                      <option value="No" selected>No</option>
+                      <option value="Yes">Yes</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr class="wo-image-row" id="bookshelf_image_row" style="display:none;">
+                  <td colspan="6">
+                    <span class="wo-image-label">Attach photo(s):</span>
+                    <input type="file" accept="image/*" multiple id="bookshelf_wo_images" />
+                    <div class="wo-image-preview" id="bookshelf_wo_preview"></div>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>Walls/Ceiling <span class="req-star">*</span></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="bedroom_walls_ceiling_checkin" /></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="bedroom_walls_ceiling_checkout" /></td>
+                  <td>
+                    <select class="wo-select" id="bedroom_walls_ceiling_wo_checkout" data-item="bedroom_walls_ceiling">
+                      <option value="No" selected>No</option>
+                      <option value="Yes">Yes</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr class="wo-image-row" id="bedroom_walls_ceiling_image_row" style="display:none;">
+                  <td colspan="6">
+                    <span class="wo-image-label">Attach photo(s):</span>
+                    <input type="file" accept="image/*" multiple id="bedroom_walls_ceiling_wo_images" />
+                    <div class="wo-image-preview" id="bedroom_walls_ceiling_wo_preview"></div>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>Floor <span class="req-star">*</span></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="bedroom_floor_checkin" /></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="bedroom_floor_checkout" /></td>
+                  <td>
+                    <select class="wo-select" id="bedroom_floor_wo_checkout" data-item="bedroom_floor">
+                      <option value="No" selected>No</option>
+                      <option value="Yes">Yes</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr class="wo-image-row" id="bedroom_floor_image_row" style="display:none;">
+                  <td colspan="6">
+                    <span class="wo-image-label">Attach photo(s):</span>
+                    <input type="file" accept="image/*" multiple id="bedroom_floor_wo_images" />
+                    <div class="wo-image-preview" id="bedroom_floor_wo_preview"></div>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>Window/Screen/Crank <span class="req-star">*</span></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="bedroom_window_screen_crank_checkin" /></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="bedroom_window_screen_crank_checkout" /></td>
+                  <td>
+                    <select class="wo-select" id="bedroom_window_screen_crank_wo_checkout" data-item="bedroom_window_screen_crank">
+                      <option value="No" selected>No</option>
+                      <option value="Yes">Yes</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr class="wo-image-row" id="bedroom_window_screen_crank_image_row" style="display:none;">
+                  <td colspan="6">
+                    <span class="wo-image-label">Attach photo(s):</span>
+                    <input type="file" accept="image/*" multiple id="bedroom_window_screen_crank_wo_images" />
+                    <div class="wo-image-preview" id="bedroom_window_screen_crank_wo_preview"></div>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>Blinds <span class="req-star">*</span></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="bedroom_blinds_checkin" /></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="bedroom_blinds_checkout" /></td>
+                  <td>
+                    <select class="wo-select" id="bedroom_blinds_wo_checkout" data-item="bedroom_blinds">
+                      <option value="No" selected>No</option>
+                      <option value="Yes">Yes</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr class="wo-image-row" id="bedroom_blinds_image_row" style="display:none;">
+                  <td colspan="6">
+                    <span class="wo-image-label">Attach photo(s):</span>
+                    <input type="file" accept="image/*" multiple id="bedroom_blinds_wo_images" />
+                    <div class="wo-image-preview" id="bedroom_blinds_wo_preview"></div>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>Light/Cover Plate <span class="req-star">*</span></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="bedroom_light_cover_plate_checkin" /></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="bedroom_light_cover_plate_checkout" /></td>
+                  <td>
+                    <select class="wo-select" id="bedroom_light_cover_plate_wo_checkout" data-item="bedroom_light_cover_plate">
+                      <option value="No" selected>No</option>
+                      <option value="Yes">Yes</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr class="wo-image-row" id="bedroom_light_cover_plate_image_row" style="display:none;">
+                  <td colspan="6">
+                    <span class="wo-image-label">Attach photo(s):</span>
+                    <input type="file" accept="image/*" multiple id="bedroom_light_cover_plate_wo_images" />
+                    <div class="wo-image-preview" id="bedroom_light_cover_plate_wo_preview"></div>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>Phone/Internet/Outlets <span class="req-star">*</span></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="bedroom_phone_internet_outlets_checkin" /></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="bedroom_phone_internet_outlets_checkout" /></td>
+                  <td>
+                    <select class="wo-select" id="bedroom_phone_internet_outlets_wo_checkout" data-item="bedroom_phone_internet_outlets">
+                      <option value="No" selected>No</option>
+                      <option value="Yes">Yes</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr class="wo-image-row" id="bedroom_phone_internet_outlets_image_row" style="display:none;">
+                  <td colspan="6">
+                    <span class="wo-image-label">Attach photo(s):</span>
+                    <input type="file" accept="image/*" multiple id="bedroom_phone_internet_outlets_wo_images" />
+                    <div class="wo-image-preview" id="bedroom_phone_internet_outlets_wo_preview"></div>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>Smoke Detector <span class="req-star">*</span></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="smoke_detector_checkin" /></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="smoke_detector_checkout" /></td>
+                  <td>
+                    <select class="wo-select" id="smoke_detector_wo_checkout" data-item="smoke_detector">
+                      <option value="No" selected>No</option>
+                      <option value="Yes">Yes</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr class="wo-image-row" id="smoke_detector_image_row" style="display:none;">
+                  <td colspan="6">
+                    <span class="wo-image-label">Attach photo(s):</span>
+                    <input type="file" accept="image/*" multiple id="smoke_detector_wo_images" />
+                    <div class="wo-image-preview" id="smoke_detector_wo_preview"></div>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>Thermostat <span class="req-star">*</span></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="thermostat_checkin" /></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="thermostat_checkout" /></td>
+                  <td>
+                    <select class="wo-select" id="thermostat_wo_checkout" data-item="thermostat">
+                      <option value="No" selected>No</option>
+                      <option value="Yes">Yes</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr class="wo-image-row" id="thermostat_image_row" style="display:none;">
+                  <td colspan="6">
+                    <span class="wo-image-label">Attach photo(s):</span>
+                    <input type="file" accept="image/*" multiple id="thermostat_wo_images" />
+                    <div class="wo-image-preview" id="thermostat_wo_preview"></div>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>Room Door/Lock <span class="req-star">*</span></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="room_door_lock_checkin" /></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="room_door_lock_checkout" /></td>
+                  <td>
+                    <select class="wo-select" id="room_door_lock_wo_checkout" data-item="room_door_lock">
+                      <option value="No" selected>No</option>
+                      <option value="Yes">Yes</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr class="wo-image-row" id="room_door_lock_image_row" style="display:none;">
+                  <td colspan="6">
+                    <span class="wo-image-label">Attach photo(s):</span>
+                    <input type="file" accept="image/*" multiple id="room_door_lock_wo_images" />
+                    <div class="wo-image-preview" id="room_door_lock_wo_preview"></div>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>Wall Outside Room <span class="req-star">*</span></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="bedroom_wall_outside_room_checkin" /></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="bedroom_wall_outside_room_checkout" /></td>
+                  <td>
+                    <select class="wo-select" id="bedroom_wall_outside_room_wo_checkout" data-item="bedroom_wall_outside_room">
+                      <option value="No" selected>No</option>
+                      <option value="Yes">Yes</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr class="wo-image-row" id="bedroom_wall_outside_room_image_row" style="display:none;">
+                  <td colspan="6">
+                    <span class="wo-image-label">Attach photo(s):</span>
+                    <input type="file" accept="image/*" multiple id="bedroom_wall_outside_room_wo_images" />
+                    <div class="wo-image-preview" id="bedroom_wall_outside_room_wo_preview"></div>
+                  </td>
+                </tr>
+
+                <tr class="section-row"><td colspan="6">LIVING ROOM</td></tr>
+
+                <tr>
+                  <td>Sofa <span class="req-star">*</span></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="sofa_checkin" /></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="sofa_checkout" /></td>
+                  <td>
+                    <select class="wo-select" id="sofa_wo_checkout" data-item="sofa">
+                      <option value="No" selected>No</option>
+                      <option value="Yes">Yes</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr class="wo-image-row" id="sofa_image_row" style="display:none;">
+                  <td colspan="6">
+                    <span class="wo-image-label">Attach photo(s):</span>
+                    <input type="file" accept="image/*" multiple id="sofa_wo_images" />
+                    <div class="wo-image-preview" id="sofa_wo_preview"></div>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>Overstuffed Chair <span class="req-star">*</span></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="overstuffed_chair_checkin" /></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="overstuffed_chair_checkout" /></td>
+                  <td>
+                    <select class="wo-select" id="overstuffed_chair_wo_checkout" data-item="overstuffed_chair">
+                      <option value="No" selected>No</option>
+                      <option value="Yes">Yes</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr class="wo-image-row" id="overstuffed_chair_image_row" style="display:none;">
+                  <td colspan="6">
+                    <span class="wo-image-label">Attach photo(s):</span>
+                    <input type="file" accept="image/*" multiple id="overstuffed_chair_wo_images" />
+                    <div class="wo-image-preview" id="overstuffed_chair_wo_preview"></div>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>Walls/Ceiling <span class="req-star">*</span></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="living_walls_ceiling_checkin" /></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="living_walls_ceiling_checkout" /></td>
+                  <td>
+                    <select class="wo-select" id="living_walls_ceiling_wo_checkout" data-item="living_walls_ceiling">
+                      <option value="No" selected>No</option>
+                      <option value="Yes">Yes</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr class="wo-image-row" id="living_walls_ceiling_image_row" style="display:none;">
+                  <td colspan="6">
+                    <span class="wo-image-label">Attach photo(s):</span>
+                    <input type="file" accept="image/*" multiple id="living_walls_ceiling_wo_images" />
+                    <div class="wo-image-preview" id="living_walls_ceiling_wo_preview"></div>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>Floor <span class="req-star">*</span></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="living_floor_checkin" /></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="living_floor_checkout" /></td>
+                  <td>
+                    <select class="wo-select" id="living_floor_wo_checkout" data-item="living_floor">
+                      <option value="No" selected>No</option>
+                      <option value="Yes">Yes</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr class="wo-image-row" id="living_floor_image_row" style="display:none;">
+                  <td colspan="6">
+                    <span class="wo-image-label">Attach photo(s):</span>
+                    <input type="file" accept="image/*" multiple id="living_floor_wo_images" />
+                    <div class="wo-image-preview" id="living_floor_wo_preview"></div>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>Window/Screen/Crank <span class="req-star">*</span></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="living_window_screen_crank_checkin" /></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="living_window_screen_crank_checkout" /></td>
+                  <td>
+                    <select class="wo-select" id="living_window_screen_crank_wo_checkout" data-item="living_window_screen_crank">
+                      <option value="No" selected>No</option>
+                      <option value="Yes">Yes</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr class="wo-image-row" id="living_window_screen_crank_image_row" style="display:none;">
+                  <td colspan="6">
+                    <span class="wo-image-label">Attach photo(s):</span>
+                    <input type="file" accept="image/*" multiple id="living_window_screen_crank_wo_images" />
+                    <div class="wo-image-preview" id="living_window_screen_crank_wo_preview"></div>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>Blinds <span class="req-star">*</span></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="living_blinds_checkin" /></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="living_blinds_checkout" /></td>
+                  <td>
+                    <select class="wo-select" id="living_blinds_wo_checkout" data-item="living_blinds">
+                      <option value="No" selected>No</option>
+                      <option value="Yes">Yes</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr class="wo-image-row" id="living_blinds_image_row" style="display:none;">
+                  <td colspan="6">
+                    <span class="wo-image-label">Attach photo(s):</span>
+                    <input type="file" accept="image/*" multiple id="living_blinds_wo_images" />
+                    <div class="wo-image-preview" id="living_blinds_wo_preview"></div>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>Light/Cover Plate <span class="req-star">*</span></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="living_light_cover_plate_checkin" /></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="living_light_cover_plate_checkout" /></td>
+                  <td>
+                    <select class="wo-select" id="living_light_cover_plate_wo_checkout" data-item="living_light_cover_plate">
+                      <option value="No" selected>No</option>
+                      <option value="Yes">Yes</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr class="wo-image-row" id="living_light_cover_plate_image_row" style="display:none;">
+                  <td colspan="6">
+                    <span class="wo-image-label">Attach photo(s):</span>
+                    <input type="file" accept="image/*" multiple id="living_light_cover_plate_wo_images" />
+                    <div class="wo-image-preview" id="living_light_cover_plate_wo_preview"></div>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>Phone/Internet/Outlets <span class="req-star">*</span></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="living_phone_internet_outlets_checkin" /></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="living_phone_internet_outlets_checkout" /></td>
+                  <td>
+                    <select class="wo-select" id="living_phone_internet_outlets_wo_checkout" data-item="living_phone_internet_outlets">
+                      <option value="No" selected>No</option>
+                      <option value="Yes">Yes</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr class="wo-image-row" id="living_phone_internet_outlets_image_row" style="display:none;">
+                  <td colspan="6">
+                    <span class="wo-image-label">Attach photo(s):</span>
+                    <input type="file" accept="image/*" multiple id="living_phone_internet_outlets_wo_images" />
+                    <div class="wo-image-preview" id="living_phone_internet_outlets_wo_preview"></div>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>Front Door/Lock <span class="req-star">*</span></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="front_door_lock_checkin" /></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="front_door_lock_checkout" /></td>
+                  <td>
+                    <select class="wo-select" id="front_door_lock_wo_checkout" data-item="front_door_lock">
+                      <option value="No" selected>No</option>
+                      <option value="Yes">Yes</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr class="wo-image-row" id="front_door_lock_image_row" style="display:none;">
+                  <td colspan="6">
+                    <span class="wo-image-label">Attach photo(s):</span>
+                    <input type="file" accept="image/*" multiple id="front_door_lock_wo_images" />
+                    <div class="wo-image-preview" id="front_door_lock_wo_preview"></div>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>Wall Outside Room <span class="req-star">*</span></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="living_wall_outside_room_checkin" /></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="living_wall_outside_room_checkout" /></td>
+                  <td>
+                    <select class="wo-select" id="living_wall_outside_room_wo_checkout" data-item="living_wall_outside_room">
+                      <option value="No" selected>No</option>
+                      <option value="Yes">Yes</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr class="wo-image-row" id="living_wall_outside_room_image_row" style="display:none;">
+                  <td colspan="6">
+                    <span class="wo-image-label">Attach photo(s):</span>
+                    <input type="file" accept="image/*" multiple id="living_wall_outside_room_wo_images" />
+                    <div class="wo-image-preview" id="living_wall_outside_room_wo_preview"></div>
+                  </td>
+                </tr>
+
+                <tr class="section-row"><td colspan="6">BATHROOM</td></tr>
+
+                <tr>
+                  <td>Mirror <span class="req-star">*</span></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="mirror_checkin" /></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="mirror_checkout" /></td>
+                  <td>
+                    <select class="wo-select" id="mirror_wo_checkout" data-item="mirror">
+                      <option value="No" selected>No</option>
+                      <option value="Yes">Yes</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr class="wo-image-row" id="mirror_image_row" style="display:none;">
+                  <td colspan="6">
+                    <span class="wo-image-label">Attach photo(s):</span>
+                    <input type="file" accept="image/*" multiple id="mirror_wo_images" />
+                    <div class="wo-image-preview" id="mirror_wo_preview"></div>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>Sink/Counter <span class="req-star">*</span></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="sink_checkin" /></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="sink_checkout" /></td>
+                  <td>
+                    <select class="wo-select" id="sink_wo_checkout" data-item="sink">
+                      <option value="No" selected>No</option>
+                      <option value="Yes">Yes</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr class="wo-image-row" id="sink_image_row" style="display:none;">
+                  <td colspan="6">
+                    <span class="wo-image-label">Attach photo(s):</span>
+                    <input type="file" accept="image/*" multiple id="sink_wo_images" />
+                    <div class="wo-image-preview" id="sink_wo_preview"></div>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>Cabinet/Drawers <span class="req-star">*</span></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="cabinet_drawers_checkin" /></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="cabinet_drawers_checkout" /></td>
+                  <td>
+                    <select class="wo-select" id="cabinet_drawers_wo_checkout" data-item="cabinet_drawers">
+                      <option value="No" selected>No</option>
+                      <option value="Yes">Yes</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr class="wo-image-row" id="cabinet_drawers_image_row" style="display:none;">
+                  <td colspan="6">
+                    <span class="wo-image-label">Attach photo(s):</span>
+                    <input type="file" accept="image/*" multiple id="cabinet_drawers_wo_images" />
+                    <div class="wo-image-preview" id="cabinet_drawers_wo_preview"></div>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>Shelves <span class="req-star">*</span></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="shelves_checkin" /></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="shelves_checkout" /></td>
+                  <td>
+                    <select class="wo-select" id="shelves_wo_checkout" data-item="shelves">
+                      <option value="No" selected>No</option>
+                      <option value="Yes">Yes</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr class="wo-image-row" id="shelves_image_row" style="display:none;">
+                  <td colspan="6">
+                    <span class="wo-image-label">Attach photo(s):</span>
+                    <input type="file" accept="image/*" multiple id="shelves_wo_images" />
+                    <div class="wo-image-preview" id="shelves_wo_preview"></div>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>Towel Racks <span class="req-star">*</span></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="towel_racks_checkin" /></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="towel_racks_checkout" /></td>
+                  <td>
+                    <select class="wo-select" id="towel_racks_wo_checkout" data-item="towel_racks">
+                      <option value="No" selected>No</option>
+                      <option value="Yes">Yes</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr class="wo-image-row" id="towel_racks_image_row" style="display:none;">
+                  <td colspan="6">
+                    <span class="wo-image-label">Attach photo(s):</span>
+                    <input type="file" accept="image/*" multiple id="towel_racks_wo_images" />
+                    <div class="wo-image-preview" id="towel_racks_wo_preview"></div>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>Tub/Shower/Curtain <span class="req-star">*</span></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="tub_shower_curtain_checkin" /></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="tub_shower_curtain_checkout" /></td>
+                  <td>
+                    <select class="wo-select" id="tub_shower_curtain_wo_checkout" data-item="tub_shower_curtain">
+                      <option value="No" selected>No</option>
+                      <option value="Yes">Yes</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr class="wo-image-row" id="tub_shower_curtain_image_row" style="display:none;">
+                  <td colspan="6">
+                    <span class="wo-image-label">Attach photo(s):</span>
+                    <input type="file" accept="image/*" multiple id="tub_shower_curtain_wo_images" />
+                    <div class="wo-image-preview" id="tub_shower_curtain_wo_preview"></div>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>Walls/Ceiling <span class="req-star">*</span></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="bathroom_walls_ceiling_checkin" /></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="bathroom_walls_ceiling_checkout" /></td>
+                  <td>
+                    <select class="wo-select" id="bathroom_walls_ceiling_wo_checkout" data-item="bathroom_walls_ceiling">
+                      <option value="No" selected>No</option>
+                      <option value="Yes">Yes</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr class="wo-image-row" id="bathroom_walls_ceiling_image_row" style="display:none;">
+                  <td colspan="6">
+                    <span class="wo-image-label">Attach photo(s):</span>
+                    <input type="file" accept="image/*" multiple id="bathroom_walls_ceiling_wo_images" />
+                    <div class="wo-image-preview" id="bathroom_walls_ceiling_wo_preview"></div>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>Floor <span class="req-star">*</span></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="bathroom_floor_checkin" /></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="bathroom_floor_checkout" /></td>
+                  <td>
+                    <select class="wo-select" id="bathroom_floor_wo_checkout" data-item="bathroom_floor">
+                      <option value="No" selected>No</option>
+                      <option value="Yes">Yes</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr class="wo-image-row" id="bathroom_floor_image_row" style="display:none;">
+                  <td colspan="6">
+                    <span class="wo-image-label">Attach photo(s):</span>
+                    <input type="file" accept="image/*" multiple id="bathroom_floor_wo_images" />
+                    <div class="wo-image-preview" id="bathroom_floor_wo_preview"></div>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>Light/Fan <span class="req-star">*</span></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="light_fan_checkin" /></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="light_fan_checkout" /></td>
+                  <td>
+                    <select class="wo-select" id="light_fan_wo_checkout" data-item="light_fan">
+                      <option value="No" selected>No</option>
+                      <option value="Yes">Yes</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr class="wo-image-row" id="light_fan_image_row" style="display:none;">
+                  <td colspan="6">
+                    <span class="wo-image-label">Attach photo(s):</span>
+                    <input type="file" accept="image/*" multiple id="light_fan_wo_images" />
+                    <div class="wo-image-preview" id="light_fan_wo_preview"></div>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>Outlets <span class="req-star">*</span></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="bathroom_outlets_checkin" /></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="bathroom_outlets_checkout" /></td>
+                  <td>
+                    <select class="wo-select" id="bathroom_outlets_wo_checkout" data-item="bathroom_outlets">
+                      <option value="No" selected>No</option>
+                      <option value="Yes">Yes</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr class="wo-image-row" id="bathroom_outlets_image_row" style="display:none;">
+                  <td colspan="6">
+                    <span class="wo-image-label">Attach photo(s):</span>
+                    <input type="file" accept="image/*" multiple id="bathroom_outlets_wo_images" />
+                    <div class="wo-image-preview" id="bathroom_outlets_wo_preview"></div>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>Wall Outside Room <span class="req-star">*</span></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="bathroom_wall_outside_room_checkin" /></td>
+                  <td><input type="text" /></td>
+                  <td><input type="text" id="bathroom_wall_outside_room_checkout" /></td>
+                  <td>
+                    <select class="wo-select" id="bathroom_wall_outside_room_wo_checkout" data-item="bathroom_wall_outside_room">
+                      <option value="No" selected>No</option>
+                      <option value="Yes">Yes</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr class="wo-image-row" id="bathroom_wall_outside_room_image_row" style="display:none;">
+                  <td colspan="6">
+                    <span class="wo-image-label">Attach photo(s):</span>
+                    <input type="file" accept="image/*" multiple id="bathroom_wall_outside_room_wo_images" />
+                    <div class="wo-image-preview" id="bathroom_wall_outside_room_wo_preview"></div>
+                  </td>
+                </tr>
+
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Residence-hall form (Arend, Baldwin-Jenkins, Ballard, Village, McMillan, Warren).
+               Built dynamically by room-inventory.js; hidden until a matching dorm is chosen. -->
+          <div class="inventory-table-wrapper" id="rhInventory" style="display:none;"></div>
+
+
+          <div class="submit-section">
+            <div id="formSuccessMessage" class="success-message" style="display:none; color: green; margin-bottom: 10px;">
+              Successfully submitted!
+            </div>
+            <button type="submit" class="submit-btn">
+              Submit Inventory
+            </button>
+          </div>
+        </form>
+      </div>
+      
+          </section>
+        </main>
+
+  <!--Script from here-->
+  <script>
+    const dormSelect   = document.getElementById('dorm');
+    const subDormSelect = document.getElementById('subDorm');
+    const subDormLabel  = document.getElementById('subDormLabel');
+    const houseInput    = document.getElementById('houseName');
+    const houseLabel    = document.getElementById('houseLabel');
+    const roomSelect = document.getElementById('roomNumber');
+
+  // Map of dorms to sub-dorms
+  const subDorm = {
+    "Warren": ["Warren-East", "Warren-South", "Warren-West"],
+    "Village": ["Akili", "Tiki", "Shalom"],
+    "Baldwin-Jenkins": ["Baldwin", "Jenkins"]
+  };
+    const subDormOptions = {
+      "Warren":          ["Warren East", "Warren South", "Warren West"],
+      "Village":         ["Akili", "Tiki", "Shalom"],
+      "Baldwin-Jenkins": ["Baldwin", "Jenkins"]
+    };
+
+    dormSelect.addEventListener('change', () => {
+      const selectedDorm = dormSelect.value;
+
+      houseInput.style.display  = 'none';
+      houseLabel.style.display  = 'none';
+      subDormSelect.style.display = 'none';
+      subDormLabel.style.display  = 'none';
+      subDormSelect.innerHTML   = '';
+      houseInput.required       = false;
+      subDormSelect.required    = false;
+      roomSelect.value = '';
+
+      if (selectedDorm === "Neighborhood House") {
+        houseLabel.style.display = 'block';
+        houseInput.style.display = 'block';
+        houseInput.required      = true;
+      } else if (subDormOptions[selectedDorm]) {
+        subDormLabel.style.display  = 'block';
+        subDormSelect.style.display = 'block';
+        subDormSelect.required      = true;
+
+        const defaultOption = document.createElement('option');
+        defaultOption.value       = '';
+        defaultOption.textContent = 'Select your sub-dorm';
+        subDormSelect.appendChild(defaultOption);
+
+        subDormOptions[selectedDorm].forEach(sub => {
+          const option       = document.createElement('option');
+          option.value       = sub;
+          option.textContent = sub;
+          subDormSelect.appendChild(option);
+        });
+      }
+    });
+
+</script>
+
+<!--pop up message for form submission!-->
+<div id="successModal" class="modal">
+  <div class="modal-content">
+    <h2>!Success!</h2>
+    <p>Your room inventory has been submitted.</p>
+    <button id="closeModalBtn">OK</button>
+  </div>
+</div>
+
+  <script src="room-inventory.js"></script>
+
+  <script>
+    // Account dropdown for the top bar
+    function toggleDropdown() {
+      const menu = document.getElementById("dropdown-menu");
+      menu.style.display = menu.style.display === "block" ? "none" : "block";
+    }
+
+    /* close when clicking outside */
+    window.onclick = function (event) {
+      const menu = document.getElementById("dropdown-menu");
+
+      if (!event.target.closest('.account-wrapper')) {
+        if (menu) menu.style.display = "none";
+      }
+    };
+  </script>
+</body>
+</html>

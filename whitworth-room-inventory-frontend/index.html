@@ -1,0 +1,51 @@
+<!-- Salwa -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css" />
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WhitHouse Login</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="login-body">
+
+  <div class="login-page">
+    <div class="login-overlay"></div>
+    <div class="login-content">
+      <h1 class="login-title">  
+         ROOM INVENTORY</h1> 
+      <h2 class="login-title">WHITWORTH HOUSING</h2>
+
+      <div class="login-card">
+        <div class="role-toggle">
+          <button class="role-btn active" data-role="student" onclick="selectRole(this)">Student</button>
+          <button class="role-btn" data-role="admin" onclick="selectRole(this)">Admin</button>
+        </div>
+
+        <h2 class="login-heading">LOG IN</h2>
+        <input
+          type="text"
+          id="user"
+          class="login-input"
+          placeholder="Student ID / Email"
+        />
+        <input
+          type="password"
+          id="password"
+          class="login-input"
+          placeholder="Password"
+        />
+        <p class="forgot-password">Forgot Password?</p>
+        <button class="login-button" onclick="login()">Login</button>
+        <p id="message" class="login-message"></p>
+      </div>
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
